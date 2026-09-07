@@ -40,6 +40,10 @@ describe('KnexRefreshTokenStore', () => {
     const found = await store.findByTokenHash(record.token_hash)
     assert.strictEqual(found?.id, record.id)
     assert.ok(found?.expires_at instanceof Date)
+
+    const byId = await store.findById(record.id)
+    assert.strictEqual(byId?.token_hash, record.token_hash)
+    assert.strictEqual(await store.findById('missing'), undefined)
   })
 
   it('rotates a token atomically', async () => {

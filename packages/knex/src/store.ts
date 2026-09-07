@@ -159,6 +159,11 @@ export class KnexRefreshTokenStore implements RefreshTokenStore {
     return row ? toRecord(row) : undefined
   }
 
+  async findById(id: string): Promise<RefreshTokenRecord | undefined> {
+    const row = await this.knex(this.table).where({ id }).first()
+    return row ? toRecord(row) : undefined
+  }
+
   async purgeExpired(olderThan: Date): Promise<number> {
     return this.knex(this.table).where('expires_at', '<', olderThan).del()
   }

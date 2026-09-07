@@ -73,6 +73,10 @@ describe('feathers-authentication-refresh', () => {
       assert.strictEqual(record?.user_id, String(user.id))
       assert.strictEqual(record?.revoked_at, null)
       assert.ok(!JSON.stringify(Array.from(store.records.values())).includes(login.refreshToken))
+
+      const byId = await store.findById(record!.id)
+      assert.strictEqual(byId?.token_hash, hashToken(login.refreshToken))
+      assert.strictEqual(await store.findById('missing'), undefined)
     })
   })
 

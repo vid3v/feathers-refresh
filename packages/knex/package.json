@@ -40,13 +40,13 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "feathers-authentication-refresh": "^0.1.0"
-  },
+  "dependencies": {},
   "peerDependencies": {
+    "feathers-authentication-refresh": "^0.1.0",
     "knex": ">= 2"
   },
   "devDependencies": {
+    "feathers-authentication-refresh": "^0.1.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.0.0",
     "knex": "^3.1.0",

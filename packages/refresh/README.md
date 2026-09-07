@@ -64,6 +64,7 @@ interface RefreshTokenStore {
   revokeAllForUser(userId: string): Promise<number>
   findActiveByUser(userId: string): Promise<RefreshTokenRecord[]>
   findByTokenHash(tokenHash: string): Promise<RefreshTokenRecord | undefined>
+  findById(id: string): Promise<RefreshTokenRecord | undefined>
   purgeExpired(olderThan: Date): Promise<number>
 }
 ```

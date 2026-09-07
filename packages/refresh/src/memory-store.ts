@@ -125,6 +125,15 @@ export class MemoryRefreshTokenStore implements RefreshTokenStore {
     return record ? cloneRecord(record) : undefined
   }
 
+  async findById(id: string): Promise<RefreshTokenRecord | undefined> {
+    for (const record of this.records.values()) {
+      if (record.id === id) {
+        return cloneRecord(record)
+      }
+    }
+    return undefined
+  }
+
   async purgeExpired(olderThan: Date): Promise<number> {
     let count = 0
     for (const [hash, record] of this.records.entries()) {

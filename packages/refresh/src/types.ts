@@ -70,6 +70,9 @@ export interface RefreshTokenStore {
   /** Finds a record by its token hash, including revoked ones (needed for reuse detection). */
   findByTokenHash(tokenHash: string): Promise<RefreshTokenRecord | undefined>
 
+  /** Finds a record by its primary key, including revoked ones (session management views). */
+  findById(id: string): Promise<RefreshTokenRecord | undefined>
+
   /** Deletes tokens expired since longer than `olderThan` (audit retention window). */
   purgeExpired(olderThan: Date): Promise<number>
 }
