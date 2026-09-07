@@ -1,0 +1,38 @@
+{
+  "name": "feathers-authentication-refresh",
+  "private": true,
+  "homepage": "https://github.com/vid3v/feathers-refresh",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vid3v/feathers-refresh.git"
+  },
+  "author": {
+    "name": "Vivien Tassing",
+    "email": "vivientassing@aol.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vid3v/feathers-refresh/issues"
+  },
+  "engines": {
+    "node": ">= 20"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "prettier": "npx prettier \"packages/{,!(node_modules)/**/(src|test)/**/}*.ts\" --write",
+    "eslint": "eslint \"packages/**/*.ts\" --fix",
+    "lint": "npm run prettier && npm run eslint",
+    "compile": "npm run compile --workspaces --if-present",
+    "test": "npm run compile && npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.9.3"
+  }
+}

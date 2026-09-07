@@ -1,0 +1,62 @@
+{
+  "name": "feathers-authentication-refresh",
+  "description": "Refresh token rotation, session revocation and reuse detection for FeathersJS authentication.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/vid3v/feathers-refresh",
+  "main": "lib/",
+  "types": "lib/",
+  "keywords": [
+    "feathers",
+    "feathers-plugin",
+    "authentication",
+    "refresh-token",
+    "jwt",
+    "security"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vid3v/feathers-refresh.git",
+    "directory": "packages/refresh"
+  },
+  "author": {
+    "name": "Vivien Tassing",
+    "email": "vivientassing@aol.com"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "src/**",
+    "lib/**"
+  ],
+  "engines": {
+    "node": ">= 20"
+  },
+  "scripts": {
+    "prepublish": "npm run compile",
+    "compile": "shx rm -rf lib/ && tsc",
+    "test": "mocha --config ../../.mocharc.json --recursive test/**.test.ts test/**/*.test.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@feathersjs/authentication": "^5.0.34",
+    "@feathersjs/errors": "^5.0.34"
+  },
+  "peerDependencies": {
+    "@feathersjs/feathers": "^5.0.34"
+  },
+  "devDependencies": {
+    "@feathersjs/feathers": "^5.0.34",
+    "@feathersjs/authentication-local": "^5.0.34",
+    "@feathersjs/memory": "^5.0.34",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.0.0",
+    "mocha": "^11.7.6",
+    "shx": "^0.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
