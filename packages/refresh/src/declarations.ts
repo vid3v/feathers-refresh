@@ -1,15 +1,5 @@
-import type { Params } from '@feathersjs/feathers'
-import type { RefreshTokenStore } from './types'
+// Intentionally no module augmentation here: augmenting `Application.get/set` for the
+// 'refreshTokenStore' key would shadow the inherited generic signatures. Store access
+// goes through `getRefreshTokenStore(app)` / `setRefreshTokenStore(app, store)` instead.
 
-/**
- * Module augmentation so `app.get('refreshTokenStore')` / `app.set(...)` are typed
- * for consumers of this package.
- */
-declare module '@feathersjs/feathers' {
-  interface Application<Services = any, Settings = any> {
-    get(key: 'refreshTokenStore'): RefreshTokenStore | undefined
-    set(key: 'refreshTokenStore', value: RefreshTokenStore): this
-  }
-}
-
-export type { Params }
+export {}

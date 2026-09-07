@@ -33,7 +33,7 @@
     "node": ">= 20"
   },
   "scripts": {
-    "prepublish": "npm run compile",
+    "prepublishOnly": "npm run compile && npm test",
     "compile": "shx rm -rf lib/ && tsc",
     "test": "mocha --config ../../.mocharc.json --recursive test/**.test.ts test/**/*.test.ts"
   },
