@@ -124,7 +124,7 @@ describe('feathers-authentication-refresh cookie support', () => {
     })
   })
 
-  describe('refreshCookie middleware — response phase', () => {
+  describe('refreshCookie middleware — request & response phase', () => {
     let server: Server
     let agent: ReturnType<typeof request>
 
@@ -201,7 +201,7 @@ describe('feathers-authentication-refresh cookie support', () => {
       assert.strictEqual(res.status, 201, 'the body token must be the one consumed')
       const nextCookie = setCookieHeader(res)
       assert.ok(nextCookie)
-      assert.notStrictEqual(cookiePair(nextCookie), rotatedCookie, 'a new token must be issued')
+      assert.notStrictEqual(cookieValue(nextCookie), rotatedToken, 'a new token must be issued')
 
       // The family is still alive (no reuse was flagged): the new cookie token rotates.
       const still = await agent
