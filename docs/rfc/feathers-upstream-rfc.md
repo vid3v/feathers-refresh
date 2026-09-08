@@ -42,8 +42,8 @@ solution.
 - [PR #2026 — Enable refresh-token server side support](https://github.com/feathersjs/feathers/pull/2026):
   a 2020 attempt to add a `authentication-refresh-token` package. It was closed after
   the maintainer's feedback — quoted here because it defines the path this RFC follows:
-  > *"if it can be its own module, it's easier to publish it separately rather than
-  > pulling it into the core" (daffl)*
+  > "If it can be its own module, it is always easier to publish it separately
+  > instead of pulling it into the core" (daffl)
 - Community plugins (`@w3lcome/feathers-refresh-token`, `feathers-refresh-token`, ...):
   minimal token swapping, none implement OWASP rotation/reuse-detection, none
   maintained. No clear winner — each app rolls its own.
