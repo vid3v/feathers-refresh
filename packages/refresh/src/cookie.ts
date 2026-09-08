@@ -1,3 +1,6 @@
+import type { Context, Next } from 'koa'
+import type { Application } from '@feathersjs/feathers'
+
 import type { RefreshConfig, RefreshCookieConfig } from './types'
 import { getRefreshConfig } from './strategy'
 import { parseExpiresIn } from './utils'
@@ -32,7 +35,7 @@ export const resolveCookieConfig = (
     if (!refresh?.cookie) {
       return null
     }
-    const cookie = (refresh.cookie ?? {}) as RefreshCookieConfig
+    const cookie = refresh.cookie as RefreshCookieConfig
     const { expiresIn } = getRefreshConfig(authConfig)
     return {
       name: cookie.name ?? 'refreshToken',
@@ -45,5 +48,85 @@ export const resolveCookieConfig = (
     }
   } catch {
     return null
+  }
+}
+
+const cookieAttributes = (config: ResolvedCookieConfig) => ({
+  httpOnly: true,
+  secure: config.secure,
+  sameSite: config.sameSite,
+  path: config.path,
+  ...(config.domain ? { domain: config.domain } : {}),
+  maxAge: config.maxAge,
+  overwrite: true
+})
+
+/** `ctx.path` with trailing slashes normalized, so `/authentication/` matches too. */
+const matchesAuthPath = (ctx: Context, path: string) => ctx.path.replace(/\/+$/, '') === path
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/**
+ * Koa middleware that transparently moves the refresh token into an HTTP-only cookie.
+ *
+ * - Response phase: any successful `POST /authentication` whose body carries a
+ *   `refreshToken` (login or rotation) gets the token moved into the cookie and
+ *   stripped from the JSON response.
+ * - `httpOnly: true` is forced; `maxAge` is derived from `refresh.expiresIn`.
+ *
+ * MANDATORY position: after `bodyParser()` and before `rest()`:
+ *
+ * ```ts
+ * app.use(errorHandler())
+ * app.use(bodyParser())
+ * app.use(refreshCookie(app))
+ * app.configure(rest())
+ * ```
+ *
+ * Inert (pass-through) when `authentication.refresh.cookie` is not configured,
+ * so it is safe to always mount.
+ */
+export const refreshCookie = (app: Application) => {
+  const resolveForRequest = (): ResolvedCookieConfig | null => {
+    try {
+      const authService = app.service('authentication') as unknown as {
+        configuration?: Record<string, unknown>
+      }
+      return authService?.configuration
+        ? resolveCookieConfig(authService.configuration)
+        : null
+    } catch {
+      // The authentication service is not registered — treat as disabled.
+      return null
+    }
+  }
+
+  return async (ctx: Context, next: Next): Promise<void> => {
+    const config = resolveForRequest()
+
+    // Request phase: token injection from the cookie is added in Task 4.
+    await next()
+
+    if (!config) {
+      return
+    }
+
+    if (ctx.method === 'DELETE' && matchesAuthPath(ctx, config.path)) {
+      // Cookie clearing is implemented in Task 5.
+      return
+    }
+
+    if (
+      ctx.method === 'POST' &&
+      matchesAuthPath(ctx, config.path) &&
+      isPlainObject(ctx.body) &&
+      typeof ctx.body.refreshToken === 'string' &&
+      ctx.body.refreshToken.length > 0
+    ) {
+      const { refreshToken, ...rest } = ctx.body
+      ctx.cookies.set(config.name, refreshToken, cookieAttributes(config))
+      ctx.body = rest
+    }
   }
 }
