@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RefreshCookieConfig` type with safe defaults (`HttpOnly` forced, `Secure`,
   `SameSite=Lax`, `Path=/authentication`, lifetime derived from `refresh.expiresIn`).
 
+### Changed
+
+- knex adapter (`feathers-authentication-refresh-knex`, still 0.1.0): peer/dev range
+  widened to `^0.1.0 || ^0.2.0` to accept this release.
+
 ## [0.1.0] - 2026-02-14
 
 ### Added

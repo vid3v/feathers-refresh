@@ -2,9 +2,11 @@
 
 Refresh token rotation, session revocation and reuse detection for FeathersJS
 authentication. This is the core package: a DB-agnostic strategy + service and the
-`RefreshTokenStore` contract.
+`RefreshTokenStore` contract — plus optional HTTP-only cookie support for the refresh
+token (`refreshCookie()` middleware + `refresh.cookie` config section).
 
-> See the [monorepo README](../../README.md) for the full security model.
+> See the [monorepo README](../../README.md) for the full security model and the
+> [HTTP-only cookie support](../../README.md#http-only-cookie-support) section.
 
 ## Install
 

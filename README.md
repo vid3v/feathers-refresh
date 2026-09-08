@@ -112,7 +112,9 @@ Browser flow:
 Defaults (overridable via `refresh.cookie`): `name: 'refreshToken'`,
 `secure: true` (set `false` for local http dev), `sameSite: 'lax'` (blocks cross-site
 POSTs — CSRF-safe on modern browsers; use `'strict'` for more), `path` /
-`domain`. `httpOnly` is always `true` and the cookie lifetime always follows
+`domain`. `path` is both the cookie `Path` attribute and the request path the
+middleware matches — widening it (e.g. `'/'`) widens the request matching too.
+`httpOnly` is always `true` and the cookie lifetime always follows
 `refresh.expiresIn`.
 
 An explicit body `refreshToken` always wins over the cookie, so existing body-based
