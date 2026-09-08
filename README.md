@@ -97,7 +97,7 @@ app.use('authentication', new RefreshAuthenticationService(app, 'authentication'
 // Mandatory position: after bodyParser(), before rest()
 app.use(refreshCookie(app))
 
-app.configure(refresh({ store: new KnexRefreshTokenStore(knex) }))
+app.configure(refresh({ store: new KnexRefreshTokenStore(database) }))
 ```
 
 Browser flow:
@@ -115,8 +115,11 @@ POSTs — CSRF-safe on modern browsers; use `'strict'` for more), `path` /
 `domain`. `httpOnly` is always `true` and the cookie lifetime always follows
 `refresh.expiresIn`.
 
-Non-cookie clients (native apps) keep working unchanged: an explicit body
-`refreshToken` always wins over the cookie, so one deployment serves both.
+An explicit body `refreshToken` always wins over the cookie, so existing body-based
+clients keep rotating without changes. Note that in cookie mode the refresh token is
+never returned in the JSON body — clients that don't persist `Set-Cookie` headers
+(e.g. many native HTTP stacks) must therefore either keep cookie support disabled or
+rely on their cookie jar.
 
 ## Development
 
