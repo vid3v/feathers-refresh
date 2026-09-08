@@ -38,9 +38,12 @@ const createKoaApp = (authConfig: Record<string, unknown> = COOKIE_CONFIG) => {
   app.configure(rest())
 
   app.use('users', memory())
-  app.use('authentication', new RefreshAuthenticationService(app, 'authentication', {
-    ...authConfig
-  } as never))
+  app.use(
+    'authentication',
+    new RefreshAuthenticationService(app, 'authentication', {
+      ...authConfig
+    } as never)
+  )
   const authService = app.service('authentication') as unknown as RefreshAuthenticationService
   authService.register('local', new LocalStrategy())
   authService.register('jwt', new JWTStrategy())
@@ -78,8 +81,7 @@ const setCookieHeader = (res: { headers: Record<string, unknown> }, name = 'refr
 const cookiePair = (raw: string) => raw.split(';')[0]
 
 /** Extracts the cookie VALUE from a raw Set-Cookie header (no attributes). */
-const cookieValue = (raw: string, name = 'refreshToken') =>
-  raw.split(';')[0].slice(name.length + 1)
+const cookieValue = (raw: string, name = 'refreshToken') => raw.split(';')[0].slice(name.length + 1)
 
 describe('feathers-authentication-refresh cookie support', () => {
   describe('resolveCookieConfig', () => {
@@ -336,9 +338,7 @@ describe('feathers-authentication-refresh cookie support', () => {
       const accessToken = loginRes.body.accessToken as string
       assert.ok(typeof accessToken === 'string')
 
-      const res = await agent
-        .delete('/authentication')
-        .set('Authorization', `Bearer ${accessToken}`)
+      const res = await agent.delete('/authentication').set('Authorization', `Bearer ${accessToken}`)
       assert.strictEqual(res.status, 200)
       assert.strictEqual(setCookieHeader(res), null)
     })

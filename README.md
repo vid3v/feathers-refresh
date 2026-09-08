@@ -77,6 +77,47 @@ const rotated = await client.authenticate({
 await client.logout()
 ```
 
+## HTTP-only cookie support
+
+For browser clients, the refresh token can be moved into an `HttpOnly` cookie so
+JavaScript never sees it (XSS can no longer exfiltrate it):
+
+```ts
+import { refresh, RefreshAuthenticationService, refreshCookie } from 'feathers-authentication-refresh'
+
+app.use('authentication', new RefreshAuthenticationService(app, 'authentication', {
+  // ...existing config
+  refresh: {
+    secret: process.env.AUTH_REFRESH_SECRET,
+    expiresIn: '7d',
+    cookie: {} // presence enables cookie support; all attributes have safe defaults
+  }
+}))
+
+// Mandatory position: after bodyParser(), before rest()
+app.use(refreshCookie(app))
+
+app.configure(refresh({ store: new KnexRefreshTokenStore(knex) }))
+```
+
+Browser flow:
+
+1. **Login** → response body `{ accessToken, user }` (no refresh token in JSON) +
+   `Set-Cookie: refreshToken=…; HttpOnly; Secure; SameSite=Lax; Path=/authentication`
+2. **Refresh** → `POST /authentication { strategy: 'refresh' }` — the cookie is sent
+   automatically, no token in the body needed
+3. **Logout** → `DELETE /authentication` — the session family is revoked and the
+   cookie is cleared
+
+Defaults (overridable via `refresh.cookie`): `name: 'refreshToken'`,
+`secure: true` (set `false` for local http dev), `sameSite: 'lax'` (blocks cross-site
+POSTs — CSRF-safe on modern browsers; use `'strict'` for more), `path` /
+`domain`. `httpOnly` is always `true` and the cookie lifetime always follows
+`refresh.expiresIn`.
+
+Non-cookie clients (native apps) keep working unchanged: an explicit body
+`refreshToken` always wins over the cookie, so one deployment serves both.
+
 ## Development
 
 ```bash
@@ -89,7 +130,7 @@ npm run lint   # prettier + eslint
 
 - [x] Core strategy, service, store contract, memory store
 - [x] Knex adapter + migration helpers
-- [ ] HTTP-only cookie helpers for refresh tokens
+- [x] HTTP-only cookie helpers for refresh tokens
 - [ ] Session listing / per-session revocation service
 - [ ] Expired-token purge job
 - [ ] Other store adapters (D1, Mongo, ...)

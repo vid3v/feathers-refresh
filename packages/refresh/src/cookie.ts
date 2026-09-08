@@ -27,9 +27,7 @@ const DEFAULT_COOKIE_PATH = '/authentication'
  * Returns `null` when the section is absent (cookie support disabled).
  * Never throws: an incomplete `authentication.refresh` section disables cookies.
  */
-export const resolveCookieConfig = (
-  authConfig: Record<string, unknown>
-): ResolvedCookieConfig | null => {
+export const resolveCookieConfig = (authConfig: Record<string, unknown>): ResolvedCookieConfig | null => {
   try {
     const refresh = authConfig.refresh as Partial<RefreshConfig> | undefined
     if (!refresh?.cookie) {
@@ -93,9 +91,7 @@ export const refreshCookie = (app: Application) => {
       const authService = app.service('authentication') as unknown as {
         configuration?: Record<string, unknown>
       }
-      return authService?.configuration
-        ? resolveCookieConfig(authService.configuration)
-        : null
+      return authService?.configuration ? resolveCookieConfig(authService.configuration) : null
     } catch {
       // The authentication service is not registered — treat as disabled.
       return null
@@ -111,11 +107,7 @@ export const refreshCookie = (app: Application) => {
     if (config && ctx.method === 'POST' && matchesAuthPath(ctx, config.path)) {
       // `body` is attached at runtime by the body parser — not in Koa's Request type.
       const requestBody = (ctx.request as unknown as { body?: unknown }).body
-      if (
-        isPlainObject(requestBody) &&
-        requestBody.strategy === 'refresh' &&
-        !requestBody.refreshToken
-      ) {
+      if (isPlainObject(requestBody) && requestBody.strategy === 'refresh' && !requestBody.refreshToken) {
         const token = ctx.cookies.get(config.name)
         if (token) {
           requestBody.refreshToken = token

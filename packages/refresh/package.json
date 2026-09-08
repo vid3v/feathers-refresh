@@ -1,7 +1,7 @@
 {
   "name": "feathers-authentication-refresh",
   "description": "Refresh token rotation, session revocation and reuse detection for FeathersJS authentication.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/vid3v/feathers-refresh",
   "main": "lib/",
   "types": "lib/",
@@ -46,7 +46,13 @@
     "@feathersjs/errors": "^5.0.34"
   },
   "peerDependencies": {
-    "@feathersjs/feathers": "^5.0.34"
+    "@feathersjs/feathers": "^5.0.34",
+    "@feathersjs/koa": "^5.0.34",
+    "koa": "^2.15.0"
+  },
+  "peerDependenciesMeta": {
+    "@feathersjs/koa": { "optional": true },
+    "koa": { "optional": true }
   },
   "devDependencies": {
     "@feathersjs/authentication-local": "^5.0.34",
