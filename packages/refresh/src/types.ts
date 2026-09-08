@@ -95,9 +95,37 @@ export interface RefreshConfig {
    * (e.g. check `status === 'active' && deleted_at == null`). Defaults to allowing everyone.
    */
   checkUser?: (user: unknown) => boolean | Promise<boolean>
+  /**
+   * Enables HTTP-only cookie support for the refresh token when present
+   * (`cookie: {}` uses all defaults). Handled by the `refreshCookie()` Koa
+   * middleware — the service and strategies are unchanged.
+   */
+  cookie?: RefreshCookieConfig
 }
 
 export interface RefreshRequestMeta {
   user_agent: string | null
   ip_address: string | null
+}
+
+/**
+ * `authentication.refresh.cookie` configuration section.
+ * The mere presence of this section enables HTTP-only cookie support.
+ * Only safe overridable attributes are exposed: `httpOnly` is always `true`
+ * and `maxAge` is always derived from `refresh.expiresIn`.
+ */
+export interface RefreshCookieConfig {
+  /** Cookie name. Defaults to `'refreshToken'`. */
+  name?: string
+  /** `Secure` attribute. Defaults to `true` (set `false` for local http dev only). */
+  secure?: boolean
+  /** `SameSite` attribute. Defaults to `'lax'` (CSRF-safe for the refresh POST). */
+  sameSite?: 'lax' | 'strict' | 'none'
+  /**
+   * Cookie `Path` attribute AND the request path the middleware matches
+   * (`ctx.path`, trailing slashes normalized). Defaults to `'/authentication'`.
+   */
+  path?: string
+  /** `Domain` attribute. Defaults to unset (host-only cookie). */
+  domain?: string
 }

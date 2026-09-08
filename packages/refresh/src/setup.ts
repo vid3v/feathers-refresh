@@ -33,24 +33,26 @@ export interface RefreshPluginOptions {
  * app.configure(refresh({ store: new KnexRefreshTokenStore(knex) }))
  * ```
  */
-export const refresh = (options: RefreshPluginOptions = {}) => (app: Application) => {
-  const store = options.store ?? app.get('refreshTokenStore')
-  if (!store) {
-    throw new Error(
-      'feathers-authentication-refresh: no token store configured. ' +
-        'Pass one via refresh({ store }) — e.g. new KnexRefreshTokenStore(knex) from the knex adapter package.'
-    )
-  }
-  setRefreshTokenStore(app, store)
+export const refresh =
+  (options: RefreshPluginOptions = {}) =>
+  (app: Application) => {
+    const store = options.store ?? app.get('refreshTokenStore')
+    if (!store) {
+      throw new Error(
+        'feathers-authentication-refresh: no token store configured. ' +
+          'Pass one via refresh({ store }) — e.g. new KnexRefreshTokenStore(knex) from the knex adapter package.'
+      )
+    }
+    setRefreshTokenStore(app, store)
 
-  const authService = app.service('authentication')
-  if (!(authService instanceof RefreshAuthenticationService)) {
-    throw new Error(
-      'feathers-authentication-refresh: the /authentication service must be an instance of ' +
-        "RefreshAuthenticationService (imported from 'feathers-authentication-refresh') " +
-        'so that login issues refresh tokens and logout revokes the session family.'
-    )
-  }
+    const authService = app.service('authentication')
+    if (!(authService instanceof RefreshAuthenticationService)) {
+      throw new Error(
+        'feathers-authentication-refresh: the /authentication service must be an instance of ' +
+          "RefreshAuthenticationService (imported from 'feathers-authentication-refresh') " +
+          'so that login issues refresh tokens and logout revokes the session family.'
+      )
+    }
 
-  authService.register(options.name ?? 'refresh', new RefreshJwtStrategy())
-}
+    authService.register(options.name ?? 'refresh', new RefreshJwtStrategy())
+  }
