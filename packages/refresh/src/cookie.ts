@@ -132,6 +132,7 @@ export const refreshCookie = (app: Application) => {
     if (ctx.method === 'DELETE' && matchesAuthPath(ctx, config.path)) {
       // Koa/cookies idiom: `set(name, null, opts)` emits an expired cookie. Same
       // path/domain attributes so the browser replaces the existing one.
+      // Errors from `next()` skip this — a failed logout never touches the cookie.
       ctx.cookies.set(config.name, null, cookieAttributes(config))
       return
     }

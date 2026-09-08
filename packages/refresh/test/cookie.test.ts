@@ -238,4 +238,109 @@ describe('feathers-authentication-refresh cookie support', () => {
       assert.strictEqual(replay.status, 401)
     })
   })
+
+  describe('security (cookie mode enabled)', () => {
+    let server: Server
+    let agent: ReturnType<typeof request>
+
+    beforeEach(async () => {
+      const http = await setupHttp()
+      server = http.server
+      agent = http.agent
+    })
+
+    afterEach(() => new Promise<void>((resolve) => server.close(() => resolve())))
+
+    it('revokes the whole family when a consumed cookie token is replayed', async () => {
+      const loginRes = await login(agent)
+      const loginCookie = setCookieHeader(loginRes)
+      assert.ok(loginCookie)
+
+      const first = await agent
+        .post('/authentication')
+        .set('Cookie', loginCookie)
+        .set('X-Forwarded-Proto', 'https')
+        .send({ strategy: 'refresh' })
+      assert.strictEqual(first.status, 201)
+      const rotatedCookie = setCookieHeader(first)
+      assert.ok(rotatedCookie)
+
+      // Replay the consumed token → reuse detection.
+      const replay = await agent
+        .post('/authentication')
+        .set('Cookie', loginCookie)
+        .set('X-Forwarded-Proto', 'https')
+        .send({ strategy: 'refresh' })
+      assert.strictEqual(replay.status, 401)
+      assert.match(String(replay.body.message), /reuse detected/i)
+
+      // The whole family is dead: the rotated cookie is rejected too.
+      const after = await agent
+        .post('/authentication')
+        .set('Cookie', rotatedCookie)
+        .set('X-Forwarded-Proto', 'https')
+        .send({ strategy: 'refresh' })
+      assert.strictEqual(after.status, 401)
+    })
+
+    it('rejects a refresh request with neither body token nor cookie', async () => {
+      await login(agent)
+
+      const res = await agent.post('/authentication').send({ strategy: 'refresh' })
+      assert.strictEqual(res.status, 401)
+      assert.match(String(res.body.message), /refresh token is required/i)
+    })
+
+    it('a failed logout (no bearer) returns 401 and never touches the cookie', async () => {
+      const loginRes = await login(agent)
+      const loginCookie = setCookieHeader(loginRes)
+      assert.ok(loginCookie)
+
+      const res = await agent
+        .delete('/authentication')
+        .set('X-Forwarded-Proto', 'https')
+        .set('Cookie', loginCookie)
+
+      assert.strictEqual(res.status, 401)
+      assert.strictEqual(setCookieHeader(res), null, 'a failed logout must not clear the cookie')
+    })
+  })
+
+  describe('disabled mode (no refresh.cookie section)', () => {
+    let server: Server
+    let agent: ReturnType<typeof request>
+
+    beforeEach(async () => {
+      const http = await setupHttp(AUTH_CONFIG)
+      server = http.server
+      agent = http.agent
+    })
+
+    afterEach(() => new Promise<void>((resolve) => server.close(() => resolve())))
+
+    it('stays fully inert: no Set-Cookie, refreshToken stays in the body, body refresh works', async () => {
+      const loginRes = await login(agent)
+      assert.strictEqual(setCookieHeader(loginRes), null, 'no cookie without the cookie config')
+      assert.ok(typeof loginRes.body.refreshToken === 'string', 'body keeps the token')
+
+      const res = await agent
+        .post('/authentication')
+        .send({ strategy: 'refresh', refreshToken: loginRes.body.refreshToken })
+      assert.strictEqual(res.status, 201)
+      assert.strictEqual(setCookieHeader(res), null)
+      assert.ok(typeof res.body.refreshToken === 'string')
+    })
+
+    it('DELETE logout is inert too: no clearing header without the cookie config', async () => {
+      const loginRes = await login(agent)
+      const accessToken = loginRes.body.accessToken as string
+      assert.ok(typeof accessToken === 'string')
+
+      const res = await agent
+        .delete('/authentication')
+        .set('Authorization', `Bearer ${accessToken}`)
+      assert.strictEqual(res.status, 200)
+      assert.strictEqual(setCookieHeader(res), null)
+    })
+  })
 })
