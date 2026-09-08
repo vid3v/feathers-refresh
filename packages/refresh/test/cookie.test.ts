@@ -211,5 +211,31 @@ describe('feathers-authentication-refresh cookie support', () => {
         .send({ strategy: 'refresh' })
       assert.strictEqual(still.status, 201)
     })
+
+    it('logout clears the cookie and revokes the session family', async () => {
+      const loginRes = await login(agent)
+      const loginCookie = setCookieHeader(loginRes)
+      assert.ok(loginCookie)
+      const accessToken = loginRes.body.accessToken as string
+
+      const res = await agent
+        .delete('/authentication')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .set('X-Forwarded-Proto', 'https')
+
+      assert.strictEqual(res.status, 200)
+      const cleared = setCookieHeader(res)
+      assert.ok(cleared, 'expected an expiring Set-Cookie on logout')
+      assert.match(cleared, /^refreshToken=;/)
+      assert.match(cleared, /(Max-Age=0|Expires=Thu, 01 Jan 1970)/i)
+
+      // The family is revoked server-side: the consumed token no longer rotates.
+      const replay = await agent
+        .post('/authentication')
+        .set('Cookie', loginCookie)
+        .set('X-Forwarded-Proto', 'https')
+        .send({ strategy: 'refresh' })
+      assert.strictEqual(replay.status, 401)
+    })
   })
 })

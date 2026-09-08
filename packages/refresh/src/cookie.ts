@@ -118,7 +118,7 @@ export const refreshCookie = (app: Application) => {
       ) {
         const token = ctx.cookies.get(config.name)
         if (token) {
-          ;(requestBody as Record<string, unknown>).refreshToken = token
+          requestBody.refreshToken = token
         }
       }
     }
@@ -130,7 +130,9 @@ export const refreshCookie = (app: Application) => {
     }
 
     if (ctx.method === 'DELETE' && matchesAuthPath(ctx, config.path)) {
-      // Cookie clearing is implemented in Task 5.
+      // Koa/cookies idiom: `set(name, null, opts)` emits an expired cookie. Same
+      // path/domain attributes so the browser replaces the existing one.
+      ctx.cookies.set(config.name, null, cookieAttributes(config))
       return
     }
 
