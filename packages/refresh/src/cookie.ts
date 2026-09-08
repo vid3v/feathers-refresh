@@ -105,7 +105,24 @@ export const refreshCookie = (app: Application) => {
   return async (ctx: Context, next: Next): Promise<void> => {
     const config = resolveForRequest()
 
-    // Request phase: token injection from the cookie is added in Task 4.
+    // Request phase: on a token-less refresh request, fall back to the cookie.
+    // An explicit body refreshToken always wins (`body ?? cookie`) so non-cookie
+    // clients keep working unchanged.
+    if (config && ctx.method === 'POST' && matchesAuthPath(ctx, config.path)) {
+      // `body` is attached at runtime by the body parser — not in Koa's Request type.
+      const requestBody = (ctx.request as unknown as { body?: unknown }).body
+      if (
+        isPlainObject(requestBody) &&
+        requestBody.strategy === 'refresh' &&
+        !requestBody.refreshToken
+      ) {
+        const token = ctx.cookies.get(config.name)
+        if (token) {
+          ;(requestBody as Record<string, unknown>).refreshToken = token
+        }
+      }
+    }
+
     await next()
 
     if (!config) {

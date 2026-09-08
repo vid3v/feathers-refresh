@@ -75,6 +75,12 @@ const setCookieHeader = (res: { headers: Record<string, unknown> }, name = 'refr
   return raw ?? null
 }
 
+const cookiePair = (raw: string) => raw.split(';')[0]
+
+/** Extracts the cookie VALUE from a raw Set-Cookie header (no attributes). */
+const cookieValue = (raw: string, name = 'refreshToken') =>
+  raw.split(';')[0].slice(name.length + 1)
+
 describe('feathers-authentication-refresh cookie support', () => {
   describe('resolveCookieConfig', () => {
     it('returns null when the refresh.cookie section is absent', () => {
@@ -146,6 +152,64 @@ describe('feathers-authentication-refresh cookie support', () => {
       assert.ok(maxAgeSeconds > 3500 && maxAgeSeconds <= 3600, `expected ~1h expiry, got ${maxAgeSeconds}s`)
       assert.strictEqual(res.body.refreshToken, undefined)
       assert.ok(typeof res.body.accessToken === 'string')
+    })
+
+    it('refreshes from the cookie alone and rotates to a new cookie', async () => {
+      const loginRes = await login(agent)
+      const loginCookie = setCookieHeader(loginRes)
+      assert.ok(loginCookie)
+
+      const res = await agent
+        .post('/authentication')
+        .set('X-Forwarded-Proto', 'https')
+        .set('Cookie', loginCookie)
+        .send({ strategy: 'refresh' })
+
+      assert.strictEqual(res.status, 201)
+      assert.ok(typeof res.body.accessToken === 'string')
+      assert.strictEqual(res.body.refreshToken, undefined, 'rotation response must not leak the token')
+      const rotatedCookie = setCookieHeader(res)
+      assert.ok(rotatedCookie, 'expected a rotated Set-Cookie')
+      assert.notStrictEqual(cookiePair(rotatedCookie), cookiePair(loginCookie), 'token must be rotated')
+    })
+
+    it('prefers an explicit body token over the cookie', async () => {
+      const loginRes = await login(agent)
+      const loginCookie = setCookieHeader(loginRes)
+      assert.ok(loginCookie)
+
+      // Rotate once via the cookie, holding the rotated token in the body only.
+      const first = await agent
+        .post('/authentication')
+        .set('X-Forwarded-Proto', 'https')
+        .set('Cookie', loginCookie)
+        .send({ strategy: 'refresh' })
+      assert.strictEqual(first.status, 201)
+      const rotatedCookie = setCookieHeader(first)
+      assert.ok(rotatedCookie)
+      const rotatedToken = cookieValue(rotatedCookie)
+      assert.ok(rotatedToken)
+
+      // BOTH channels carry a valid token: body = rotated token, cookie = login token.
+      // Body priority means the ROTATED token is consumed (201 + a new cookie).
+      const res = await agent
+        .post('/authentication')
+        .set('X-Forwarded-Proto', 'https')
+        .set('Cookie', loginCookie)
+        .send({ strategy: 'refresh', refreshToken: rotatedToken })
+
+      assert.strictEqual(res.status, 201, 'the body token must be the one consumed')
+      const nextCookie = setCookieHeader(res)
+      assert.ok(nextCookie)
+      assert.notStrictEqual(cookiePair(nextCookie), rotatedCookie, 'a new token must be issued')
+
+      // The family is still alive (no reuse was flagged): the new cookie token rotates.
+      const still = await agent
+        .post('/authentication')
+        .set('X-Forwarded-Proto', 'https')
+        .set('Cookie', nextCookie)
+        .send({ strategy: 'refresh' })
+      assert.strictEqual(still.status, 201)
     })
   })
 })
