@@ -96,7 +96,10 @@ describe('feathers-authentication-refresh', () => {
 
       const oldRecord = await store.findByTokenHash(hashToken(login.refreshToken))
       assert.ok(oldRecord?.revoked_at)
-      assert.strictEqual(oldRecord?.replaced_by_id, (await store.findByTokenHash(hashToken(rotated.refreshToken)))?.id)
+      assert.strictEqual(
+        oldRecord?.replaced_by_id,
+        (await store.findByTokenHash(hashToken(rotated.refreshToken)))?.id
+      )
     })
 
     it('rejects replaying a rotated refresh token and revokes the whole family', async () => {
@@ -139,7 +142,10 @@ describe('feathers-authentication-refresh', () => {
     it('rejects renewal for inactive users', async () => {
       await setup({
         ...AUTH_CONFIG,
-        refresh: { ...AUTH_CONFIG.refresh, checkUser: (u: unknown) => (u as { status?: string }).status === 'active' }
+        refresh: {
+          ...AUTH_CONFIG.refresh,
+          checkUser: (u: unknown) => (u as { status?: string }).status === 'active'
+        }
       })
       await expectNotAuthenticated(refreshCall(login.refreshToken), 'User account is not active')
     })
@@ -190,7 +196,10 @@ describe('feathers-authentication-refresh', () => {
       app.use('users', { get: async () => ({}), create: async () => ({}), remove: async () => ({}) })
       app.use('authentication', new AuthenticationService(app, 'authentication', AUTH_CONFIG))
       const { refresh } = await import('../src')
-      assert.throws(() => app.configure(refresh({ store: new MemoryRefreshTokenStore() })), /must be an instance/)
+      assert.throws(
+        () => app.configure(refresh({ store: new MemoryRefreshTokenStore() })),
+        /must be an instance/
+      )
     })
   })
 

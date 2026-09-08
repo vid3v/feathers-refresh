@@ -1,13 +1,19 @@
 import { NotAuthenticated } from '@feathersjs/errors'
 import { AuthenticationBaseStrategy } from '@feathersjs/authentication'
-import type { AuthenticationParams, AuthenticationRequest, JwtVerifyOptions } from '@feathersjs/authentication'
+import type {
+  AuthenticationParams,
+  AuthenticationRequest,
+  JwtVerifyOptions
+} from '@feathersjs/authentication'
 import type { Application } from '@feathersjs/feathers'
 
 import type { RefreshConfig, RefreshTokenStore } from './types'
 import { hashToken, parseExpiresIn, requestMeta } from './utils'
 
 /** Reads the `authentication.refresh` configuration section, with defaults. */
-export const getRefreshConfig = (authConfig: Record<string, unknown>): Required<Pick<RefreshConfig, 'sessionStrategies'>> & RefreshConfig => {
+export const getRefreshConfig = (
+  authConfig: Record<string, unknown>
+): Required<Pick<RefreshConfig, 'sessionStrategies'>> & RefreshConfig => {
   const refresh = authConfig.refresh as Partial<RefreshConfig> | undefined
   if (!refresh?.secret || !refresh?.expiresIn) {
     throw new Error(

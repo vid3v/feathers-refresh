@@ -3,11 +3,7 @@ import { memory } from '@feathersjs/memory'
 import { LocalStrategy, hooks } from '@feathersjs/authentication-local'
 import { JWTStrategy } from '@feathersjs/authentication'
 
-import {
-  RefreshAuthenticationService,
-  MemoryRefreshTokenStore,
-  refresh
-} from '../src'
+import { RefreshAuthenticationService, MemoryRefreshTokenStore, refresh } from '../src'
 
 export const AUTH_CONFIG = {
   entity: 'user',

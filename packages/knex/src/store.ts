@@ -14,7 +14,16 @@ export interface KnexStoreOptions {
 }
 
 /** Dialects whose query builder supports `SELECT ... FOR UPDATE`. */
-const FOR_UPDATE_CLIENTS = ['pg', 'pg-native', 'redshift', 'mssql', 'mysql', 'mysql2', 'oracledb', 'cockroachdb']
+const FOR_UPDATE_CLIENTS = [
+  'pg',
+  'pg-native',
+  'redshift',
+  'mssql',
+  'mysql',
+  'mysql2',
+  'oracledb',
+  'cockroachdb'
+]
 
 const asDate = (value: Date | string): Date => (value instanceof Date ? value : new Date(value))
 
@@ -107,14 +116,11 @@ export class KnexRefreshTokenStore implements RefreshTokenStore {
 
       // Cannot normally happen because of the FOR UPDATE lock. If it does, we
       // treat it as a reuse: the family gets revoked by the caller.
-      const updated = await trx(this.table)
-        .where({ id: oldRow.id })
-        .whereNull('revoked_at')
-        .update({
-          revoked_at: trx.fn.now(),
-          replaced_by_id: newRow.id,
-          updated_at: trx.fn.now()
-        })
+      const updated = await trx(this.table).where({ id: oldRow.id }).whereNull('revoked_at').update({
+        revoked_at: trx.fn.now(),
+        replaced_by_id: newRow.id,
+        updated_at: trx.fn.now()
+      })
 
       if (updated === 0) {
         return { ok: false, reason: 'reused', familyId: oldRow.family_id, userId: oldRow.user_id }
