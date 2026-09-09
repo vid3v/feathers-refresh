@@ -1,4 +1,5 @@
 import assert from 'assert'
+import knexLib from 'knex'
 import type { Knex } from 'knex'
 
 import { hashToken } from 'feathers-authentication-refresh'
@@ -20,7 +21,7 @@ describe('KnexRefreshTokenStore', () => {
     })
 
   beforeEach(async () => {
-    knex = require('knex')({ client: 'sqlite3', connection: ':memory:' })
+    knex = knexLib({ client: 'sqlite3', connection: ':memory:' })
     await createRefreshTokensTable(knex)
     store = new KnexRefreshTokenStore(knex)
   })
@@ -131,6 +132,15 @@ describe('KnexRefreshTokenStore', () => {
 
     const revoked = await store.findByTokenHash(first.token_hash)
     assert.ok(revoked?.revoked_at)
+  })
+
+  it('lists active tokens with session-management fields', async () => {
+    await issueToken({ family_id: 'family-1' })
+
+    const active = await store.findActiveByUser('user-1')
+    assert.strictEqual(active.length, 1)
+    // `updated_at` backs the `last_used_at` field of the session service view
+    assert.ok(active[0].updated_at instanceof Date)
   })
 
   it('revokes all tokens of a user', async () => {

@@ -43,6 +43,32 @@ The authentication service **must** be a `RefreshAuthenticationService` (the plu
 throws otherwise): it is what mints the refresh token on login, adds the `sid` claim
 to access tokens and revokes the session family on logout.
 
+## Session management
+
+Register the optional sessions service to give clients visibility and control over
+their own active sessions:
+
+```ts
+import { refresh, sessions } from 'feathers-authentication-refresh'
+
+app.configure(refresh({ store: new KnexRefreshTokenStore(knex) }))
+app.configure(sessions()) // → /authentication/sessions (custom path via { path })
+app.service('authentication/sessions').hooks({
+  before: { all: authenticate('jwt') }
+})
+```
+
+- `find(params)` — the caller's active sessions, one row per session family (the `id`
+  is the `sid` claim, stable across rotation): `{ id, user_id, user_agent, ip_address,
+  created_at, expires_at, last_used_at, current }`. The request's own session is
+  flagged `current`; hashes and revocation bookkeeping are never exposed.
+- `remove(id, params)` — revokes one session family of the authenticated user.
+- `remove(null, params)` — revokes all of the user's sessions, returns `{ revoked }`.
+
+Access is always scoped to the verified JWT `sub` (or an explicit internal
+`params.user`); foreign or unknown session ids yield the same `NotFound`. Server-side
+calls may pass `{ user: { id } }` instead of an access token.
+
 ## How it works
 
 1. `POST /authentication { strategy: 'local', ... }` — returns `{ accessToken,

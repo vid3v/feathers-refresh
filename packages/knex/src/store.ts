@@ -152,7 +152,16 @@ export class KnexRefreshTokenStore implements RefreshTokenStore {
 
   async findActiveByUser(userId: string): Promise<RefreshTokenRecord[]> {
     const rows = await this.knex(this.table)
-      .select('id', 'family_id', 'user_id', 'user_agent', 'ip_address', 'created_at', 'expires_at')
+      .select(
+        'id',
+        'family_id',
+        'user_id',
+        'user_agent',
+        'ip_address',
+        'created_at',
+        'updated_at',
+        'expires_at'
+      )
       .where({ user_id: userId })
       .whereNull('revoked_at')
       .where('expires_at', '>', new Date())

@@ -123,6 +123,34 @@ never returned in the JSON body — clients that don't persist `Set-Cookie` head
 (e.g. many native HTTP stacks) must therefore either keep cookie support disabled or
 rely on their cookie jar.
 
+## Session management
+
+The optional sessions service exposes the active sessions of the **authenticated user**
+(listing, per-session revocation, "log out everywhere") on top of any store:
+
+```ts
+import { refresh, sessions } from 'feathers-authentication-refresh'
+
+app.configure(refresh({ store: new KnexRefreshTokenStore(database) }))
+app.configure(sessions()) // → /authentication/sessions
+app.service('authentication/sessions').hooks({
+  before: { all: authenticate('jwt') }
+})
+```
+
+- `find()` → the active sessions of the caller, one row per session family, newest
+  first: `{ id /* = sid claim */, user_agent, ip_address, created_at, expires_at,
+  last_used_at, current }`. Sensitive store fields (`token_hash`, `revoked_at`,
+  `replaced_by_id`) are never exposed. The request's own session carries `current: true`.
+- `remove(sid)` → revokes one session family (its refresh token becomes unusable; the
+  already-issued access token simply expires — same semantics as logout).
+- `remove(null)` → revokes **every** session of the user ("log out everywhere") and
+  returns `{ revoked }`.
+
+Everything is scoped to the authenticated user (resolved from the verified JWT `sub`,
+or an explicit internal `params.user`) — nobody can list or revoke another user's
+sessions, and unknown or foreign session ids return the same `NotFound`.
+
 ## Development
 
 ```bash
@@ -136,7 +164,7 @@ npm run lint   # prettier + eslint
 - [x] Core strategy, service, store contract, memory store
 - [x] Knex adapter + migration helpers
 - [x] HTTP-only cookie helpers for refresh tokens
-- [ ] Session listing / per-session revocation service
+- [x] Session listing / per-session revocation service
 - [ ] Expired-token purge job
 - [ ] Other store adapters (D1, Mongo, ...)
 

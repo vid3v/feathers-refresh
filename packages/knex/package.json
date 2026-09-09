@@ -1,7 +1,7 @@
 {
   "name": "feathers-authentication-refresh-knex",
   "description": "Knex adapter (PostgreSQL, SQLite, MySQL...) for feathers-authentication-refresh token stores.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "homepage": "https://github.com/vid3v/feathers-refresh",
   "main": "lib/",
   "types": "lib/",
@@ -42,11 +42,11 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "feathers-authentication-refresh": "^0.1.0 || ^0.2.0",
+    "feathers-authentication-refresh": "^0.1.0 || ^0.2.0 || ^0.3.0",
     "knex": ">= 2"
   },
   "devDependencies": {
-    "feathers-authentication-refresh": "^0.1.0 || ^0.2.0",
+    "feathers-authentication-refresh": "^0.1.0 || ^0.2.0 || ^0.3.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.0.0",
     "knex": "^3.1.0",

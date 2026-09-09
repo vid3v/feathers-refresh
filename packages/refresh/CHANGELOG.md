@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0] - 2026-09-09
+
+### Added
+
+- Session listing / per-session revocation service: `SessionService` + `sessions()`
+  plugin (default path `authentication/sessions`). `find` lists the authenticated
+  user's active sessions (one row per session family, `current` flag, no token
+  material exposed), `remove(id)` revokes one session family, `remove(null)` revokes
+  every session of the user ("log out everywhere"). Access is always scoped to the
+  verified JWT `sub` (or an explicit internal `params.user`).
+- `SessionView` and `SessionParams` types.
+
 ## [0.2.0] - 2026-09-08
 
 ### Added

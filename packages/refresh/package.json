@@ -1,7 +1,7 @@
 {
   "name": "feathers-authentication-refresh",
   "description": "Refresh token rotation, session revocation and reuse detection for FeathersJS authentication.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "homepage": "https://github.com/vid3v/feathers-refresh",
   "main": "lib/",
   "types": "lib/",
