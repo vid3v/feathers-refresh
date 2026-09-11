@@ -15,7 +15,8 @@ npm install feathers-authentication-refresh
 ```
 
 You also need a store — use [`feathers-authentication-refresh-knex`](../knex) for SQL
-databases or the built-in `MemoryRefreshTokenStore` for tests and lightweight apps.
+databases, [`feathers-authentication-refresh-mongodb`](../mongo) for MongoDB, or the
+built-in `MemoryRefreshTokenStore` for tests and lightweight apps.
 
 ## Usage
 

@@ -11,12 +11,14 @@ as a set of small, pluggable packages following the OWASP refresh-token best pra
 | --- | --- |
 | [`feathers-authentication-refresh`](./packages/refresh) | Core: `refresh` JWT strategy, `RefreshAuthenticationService`, store contract, in-memory store |
 | [`feathers-authentication-refresh-knex`](./packages/knex) | Knex adapter (PostgreSQL, SQLite, MySQL, ...) + migration helpers |
+| [`feathers-authentication-refresh-mongodb`](./packages/mongo) | MongoDB adapter + index helpers |
 
 ## Security model
 
 - **Short-lived access tokens** (e.g. 15 min) + **long-lived refresh tokens** (e.g. 7 days).
 - **Rotation**: every refresh consumes the old token and issues a new pair. Rotation is
-  atomic (`SELECT ... FOR UPDATE` in the SQL adapter), so concurrent refreshes are serialized.
+  atomic (`SELECT ... FOR UPDATE` in the SQL adapter, a conditional `updateOne` claim in
+  the MongoDB adapter), so concurrent refreshes are serialized.
 - **Reuse detection**: replaying an already-consumed refresh token is treated as token theft
   and revokes the **whole session family** — every token issued since the original login.
 - **Hashed at rest**: only `SHA-256(token)` is stored, never the raw token.
@@ -198,7 +200,7 @@ npm run lint   # prettier + eslint
 - [x] HTTP-only cookie helpers for refresh tokens
 - [x] Session listing / per-session revocation service
 - [x] Expired-token purge job
-- [ ] Other store adapters (D1, Mongo, ...)
+- [x] Other store adapters: Mongo (D1, ...)
 
 ## Contributing upstream
 

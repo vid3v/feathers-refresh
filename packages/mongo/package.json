@@ -1,0 +1,60 @@
+{
+  "name": "feathers-authentication-refresh-mongodb",
+  "description": "MongoDB adapter for feathers-authentication-refresh token stores.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/vid3v/feathers-refresh",
+  "main": "lib/",
+  "types": "lib/",
+  "keywords": [
+    "feathers",
+    "feathers-plugin",
+    "authentication",
+    "refresh-token",
+    "mongodb",
+    "mongo"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vid3v/feathers-refresh.git",
+    "directory": "packages/mongo"
+  },
+  "author": {
+    "name": "Vivien Tassing",
+    "email": "vivientassing@aol.com"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "src/**",
+    "lib/**"
+  ],
+  "engines": {
+    "node": ">= 20"
+  },
+  "scripts": {
+    "prepublishOnly": "npm run compile && npm test",
+    "compile": "shx rm -rf lib/ && tsc",
+    "test": "mocha --config ../../.mocharc.json --timeout 120000 --recursive test/**.test.ts test/**/*.test.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "feathers-authentication-refresh": "^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0",
+    "mongodb": ">= 5"
+  },
+  "devDependencies": {
+    "feathers-authentication-refresh": "^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.0.0",
+    "mocha": "^11.7.6",
+    "mongodb": "^6.17.0",
+    "mongodb-memory-server": "^10.1.4",
+    "shx": "^0.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

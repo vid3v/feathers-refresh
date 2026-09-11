@@ -24,8 +24,8 @@
     "prettier": "npx prettier \"packages/{,!(node_modules)/**/(src|test)/**/}*.ts\" --write",
     "eslint": "eslint \"packages/**/*.ts\" --fix",
     "lint": "npm run prettier && npm run eslint",
-    "compile": "npm run compile -w feathers-authentication-refresh && npm run compile -w feathers-authentication-refresh-knex",
-    "test": "npm run compile && npm run test -w feathers-authentication-refresh && npm run test -w feathers-authentication-refresh-knex"
+    "compile": "npm run compile -w feathers-authentication-refresh && npm run compile -w feathers-authentication-refresh-knex && npm run compile -w feathers-authentication-refresh-mongodb",
+    "test": "npm run compile && npm run test -w feathers-authentication-refresh && npm run test -w feathers-authentication-refresh-knex && npm run test -w feathers-authentication-refresh-mongodb"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.21.0",
