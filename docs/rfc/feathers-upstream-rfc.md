@@ -52,7 +52,8 @@ solution.
 
 A published, MIT-licensed, CI-tested module ([GitHub](https://github.com/vid3v/feathers-refresh) ·
 [npm core](https://www.npmjs.com/package/feathers-authentication-refresh) ·
-[npm knex adapter](https://www.npmjs.com/package/feathers-authentication-refresh-knex)),
+[npm knex adapter](https://www.npmjs.com/package/feathers-authentication-refresh-knex) ·
+[npm mongodb adapter](https://www.npmjs.com/package/feathers-authentication-refresh-mongodb)),
 in production use in a real API since its extraction. It stays as close to the stock
 authentication architecture as possible:
 
@@ -113,15 +114,17 @@ Flow:
 The DB-agnostic core defines a `RefreshTokenStore` interface
 (`issue`, `rotate`, `revokeFamily`, `revokeAllForUser`, `findActiveByUser`,
 `findByTokenHash`, `findById`, `purgeExpired`); hashing stays in the core so stores only
-ever see hashes. Ships with an in-memory store (tests, small apps) and a Knex adapter
-(PostgreSQL/SQLite/MySQL tested); the contract is small enough for D1/Mongo adapters.
+ever see hashes. Ships with an in-memory store (tests, small apps) and two published
+adapters: Knex (PostgreSQL/SQLite/MySQL tested) and MongoDB (atomic rotation without
+multi-document transactions — conditional `updateOne` claim, works on standalone
+servers). The contract is small enough for further adapters (D1, ...).
 
 The user-facing "may this user renew sessions?" check is a pluggable `checkUser`
 predicate (account status, soft-delete, bans...).
 
 ## Evidence
 
-- 28 tests covering the flows above (core + SQL adapter, both CI matrix Node 20/22)
+- 76 tests covering the flows above (core + SQL adapter + MongoDB adapter, both CI matrix Node 20/22)
 - Published on npm, used in production by the author's API (a real multi-tenant
   breeding-management backend) — the module was extracted from it specifically to
   prepare this proposal
@@ -161,4 +164,5 @@ predicate (account status, soft-delete, bans...).
 - Repository: https://github.com/vid3v/feathers-refresh
 - Core: https://www.npmjs.com/package/feathers-authentication-refresh
 - Knex adapter: https://www.npmjs.com/package/feathers-authentication-refresh-knex
+- MongoDB adapter: https://www.npmjs.com/package/feathers-authentication-refresh-mongodb
 - Release: https://github.com/vid3v/feathers-refresh/releases/tag/v0.1.0

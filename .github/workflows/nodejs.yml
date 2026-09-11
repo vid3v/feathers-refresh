@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
+      - name: Cache MongoDB binaries (mongodb-memory-server)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-7.0.24-${{ runner.os }}
       - run: npm install
       - run: npm run compile
       - run: npm test

@@ -34,6 +34,10 @@ as a set of small, pluggable packages following the OWASP refresh-token best pra
 npm install feathers-authentication-refresh feathers-authentication-refresh-knex knex
 ```
 
+> Using MongoDB? Install [`feathers-authentication-refresh-mongodb`](./packages/mongo)
+> instead of the knex adapter and pass `new MongoRefreshTokenStore(client.db())` as
+> the store — see its README for index setup.
+
 ```ts
 import { knex } from 'knex'
 import { refresh, RefreshAuthenticationService } from 'feathers-authentication-refresh'
@@ -155,7 +159,7 @@ sessions, and unknown or foreign session ids return the same `NotFound`.
 
 ## Expired-token purge job
 
-Without cleanup, consumed/expired refresh-token rows accumulate forever in SQL stores.
+Without cleanup, consumed/expired refresh-token rows accumulate forever in the store.
 The optional purge job deletes **expired** rows on a schedule using any store's
 `purgeExpired` (active and revoked-but-unexpired rows are never touched; audit history
 is governed by the retention window):
@@ -200,7 +204,8 @@ npm run lint   # prettier + eslint
 - [x] HTTP-only cookie helpers for refresh tokens
 - [x] Session listing / per-session revocation service
 - [x] Expired-token purge job
-- [x] Other store adapters: Mongo (D1, ...)
+- [x] Other store adapters: MongoDB (`feathers-authentication-refresh-mongodb`)
+- [ ] Other store adapters: D1
 
 ## Contributing upstream
 

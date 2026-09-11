@@ -5,19 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-
-- `feathers-authentication-refresh-mongodb` 0.1.0: MongoDB `RefreshTokenStore` adapter
-  with atomic, transaction-free rotation (conditional `updateOne` claim — works on
-  standalone servers, no replica set required) + `createRefreshTokensIndexes` /
-  `dropRefreshTokensCollection` setup helpers.
-
 ## [0.4.0] - 2026-09-11
 
 ### Added
 
+- `feathers-authentication-refresh-mongodb` (released as 0.1.0): MongoDB
+  `RefreshTokenStore` adapter with atomic, transaction-free rotation (conditional
+  `updateOne` claim — works on standalone servers, no replica set required) +
+  `createRefreshTokensIndexes` / `dropRefreshTokensCollection` setup helpers.
 - Expired-token purge job (`feathers-authentication-refresh` 0.4.0):
   `createPurgeJob(store, options)` + `purgeJob()` plugin delete expired refresh-token
   rows on a schedule via the store's `purgeExpired`. Options: `interval` (default
