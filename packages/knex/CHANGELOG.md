@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1] - 2026-09-11
+
+### Changed
+
+- Peer/dev dependency range for `feathers-authentication-refresh` widened to
+  `^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0` (accepts the 0.4.0 purge-job release).
+  No code changes — the store already implements `purgeExpired`.
+
 ## [0.2.0] - 2026-09-09
 
 ### Changed

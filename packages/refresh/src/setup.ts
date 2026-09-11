@@ -3,12 +3,20 @@ import type { Application } from '@feathersjs/feathers'
 import { RefreshAuthenticationService } from './service'
 import { RefreshJwtStrategy, setRefreshTokenStore } from './strategy'
 import type { RefreshTokenStore } from './types'
+import { createPurgeJob, PURGE_JOB_KEY } from './purge'
+import type { PurgeJobOptions } from './purge'
 
 export interface RefreshPluginOptions {
   /** The token store implementation to use (e.g. the Knex adapter's store). */
   store?: RefreshTokenStore
   /** Name the refresh strategy registers itself under. Defaults to `'refresh'`. */
   name?: string
+  /**
+   * Starts the expired-token purge job after the store is registered
+   * (`purge: {}` uses all defaults). Optional — `purgeJob()` can be configured
+   * separately instead.
+   */
+  purge?: PurgeJobOptions
 }
 
 /**
@@ -55,4 +63,8 @@ export const refresh =
     }
 
     authService.register(options.name ?? 'refresh', new RefreshJwtStrategy())
+
+    if (options.purge) {
+      app.set(PURGE_JOB_KEY, createPurgeJob(store, options.purge))
+    }
   }

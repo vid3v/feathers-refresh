@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-09-11
+
+### Added
+
+- Expired-token purge job (`feathers-authentication-refresh` 0.4.0):
+  `createPurgeJob(store, options)` + `purgeJob()` plugin delete expired refresh-token
+  rows on a schedule via the store's `purgeExpired`. Options: `interval` (default
+  `'24h'`), `olderThan` retention window (default `'0s'`), `runOnStart`, `onError`.
+  Also startable in one step via `refresh({ store, purge: { ... } })`; the handle is
+  exposed as `app.get('refreshPurgeJob')` (`run()`, `stop()`, `isRunning()`).
+
+### Changed
+
+- knex adapter (`feathers-authentication-refresh-knex`, released as 0.2.1): peer/dev
+  range widened to `^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0`. No code changes — the
+  store already implements `purgeExpired`.
+
 ## [0.3.0] - 2026-09-09
 
 ### Added

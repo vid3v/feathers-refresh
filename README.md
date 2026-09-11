@@ -151,6 +151,38 @@ Everything is scoped to the authenticated user (resolved from the verified JWT `
 or an explicit internal `params.user`) — nobody can list or revoke another user's
 sessions, and unknown or foreign session ids return the same `NotFound`.
 
+## Expired-token purge job
+
+Without cleanup, consumed/expired refresh-token rows accumulate forever in SQL stores.
+The optional purge job deletes **expired** rows on a schedule using any store's
+`purgeExpired` (active and revoked-but-unexpired rows are never touched; audit history
+is governed by the retention window):
+
+```ts
+import { refresh, purgeJob } from 'feathers-authentication-refresh'
+
+app.configure(refresh({ store }))
+app.configure(purgeJob({ interval: '6h', olderThan: '30d' }))
+```
+
+- `interval` (default `'24h'`) — how often the job runs (`'15m'`, `'1h'`, ...).
+- `olderThan` (default `'0s'`) — retention window: only tokens expired since longer
+  than this are deleted, so recently expired rows stay queryable for audits.
+- `runOnStart` (default `false`) — runs one pass immediately at startup.
+- `onError` — called when a scheduled run fails (default `console.error`), so a
+  transient store outage never kills the schedule.
+
+Or start it in one step with the store registration:
+
+```ts
+app.configure(refresh({ store, purge: { interval: '6h', olderThan: '30d' } }))
+```
+
+The handle is available as `app.get('refreshPurgeJob')` — `run()` triggers a pass
+immediately (resolves with the number of deleted rows), `stop()` cancels the schedule
+for graceful shutdown. The underlying timer is `unref`'d, so the job never keeps the
+process alive on its own.
+
 ## Development
 
 ```bash
@@ -165,7 +197,7 @@ npm run lint   # prettier + eslint
 - [x] Knex adapter + migration helpers
 - [x] HTTP-only cookie helpers for refresh tokens
 - [x] Session listing / per-session revocation service
-- [ ] Expired-token purge job
+- [x] Expired-token purge job
 - [ ] Other store adapters (D1, Mongo, ...)
 
 ## Contributing upstream

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0] - 2026-09-11
+
+### Added
+
+- Expired-token purge job: `createPurgeJob(store, options)` + `purgeJob()` plugin
+  delete expired refresh-token rows on a schedule via the store's `purgeExpired`.
+  Options: `interval` (default `'24h'`), `olderThan` retention window (default
+  `'0s'`), `runOnStart`, `onError`. Also available in one step via
+  `refresh({ store, purge: { ... } })`; the handle is exposed as
+  `app.get('refreshPurgeJob')` (`run()`, `stop()`, `isRunning()`). The timer is
+  `unref`'d and scheduled failures are reported through `onError` so they never
+  crash the process.
+
 ## [0.3.0] - 2026-09-09
 
 ### Added
