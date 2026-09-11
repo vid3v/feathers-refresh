@@ -21,7 +21,7 @@ describe('KnexRefreshTokenStore', () => {
     })
 
   beforeEach(async () => {
-    knex = knexLib({ client: 'sqlite3', connection: ':memory:' })
+    knex = knexLib({ client: 'sqlite3', connection: ':memory:', useNullAsDefault: true })
     await createRefreshTokensTable(knex)
     store = new KnexRefreshTokenStore(knex)
   })
